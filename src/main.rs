@@ -21,14 +21,16 @@ fn main() -> ! {
 
     let (pa15, pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
 
-    let mut led0 = gpioa.pa0.into_push_pull_output(&mut gpioa.crl); //w
-    let mut led1 = gpioa.pa1.into_push_pull_output(&mut gpioa.crl); //w
-    let mut led2 = gpioa.pa2.into_push_pull_output(&mut gpioa.crl); //w
-    let mut led3 = pa15.into_push_pull_output(&mut gpioa.crh);
-    let mut led4 = gpioa.pa8.into_push_pull_output(&mut gpioa.crh);
-    let mut led5 = gpioa.pa6.into_push_pull_output(&mut gpioa.crl); //w
-    let mut led6 = gpioa.pa5.into_push_pull_output(&mut gpioa.crl); //w
-    let mut led7 = gpioa.pa11.into_push_pull_output(&mut gpioa.crh);
+    let mut leds = [
+        gpioa.pa0.into_push_pull_output(&mut gpioa.crl).downgrade(),
+        gpioa.pa1.into_push_pull_output(&mut gpioa.crl).downgrade(),
+        gpioa.pa2.into_push_pull_output(&mut gpioa.crl).downgrade(),
+        pa15.into_push_pull_output(&mut gpioa.crh).downgrade(),
+        gpioa.pa8.into_push_pull_output(&mut gpioa.crh).downgrade(),
+        gpioa.pa6.into_push_pull_output(&mut gpioa.crl).downgrade(),
+        gpioa.pa5.into_push_pull_output(&mut gpioa.crl).downgrade(),
+        gpioa.pa11.into_push_pull_output(&mut gpioa.crh).downgrade(),
+    ];
 
     let mut sw0 = gpiob.pb12.into_pull_down_input(&mut gpiob.crh);
 
@@ -40,59 +42,21 @@ fn main() -> ! {
 
     let mut delay = Delay::new(cp.SYST, clocks);
 
+    let mut delay_var = 50_u16;
+
     loop {
-        // led0.set_high().ok();
-        // delay.delay_ms(50_u16);
+        if sw0.is_low().ok().unwrap() {
+            for i in 0..=7 {
+                leds[i].set_high().ok();
 
-        // led1.set_high().ok();
-        // delay.delay_ms(50_u16);
-
-        // led2.set_high().ok();
-        // delay.delay_ms(50_u16);
-
-        // led3.set_high().ok();
-        // delay.delay_ms(50_u16);
-
-        // led4.set_high().ok();
-        // delay.delay_ms(50_u16);
-
-        // led5.set_high().ok();
-        // delay.delay_ms(50_u16);
-
-        // led6.set_high().ok();
-        // delay.delay_ms(50_u16);
-
-        // led7.set_high().ok();
-        // delay.delay_ms(50_u16);
-
-        // led0.set_low().ok();
-        // delay.delay_ms(50_u16);
-
-        // led1.set_low().ok();
-        // delay.delay_ms(50_u16);
-
-        // led2.set_low().ok();
-        // delay.delay_ms(50_u16);
-
-        // led3.set_low().ok();
-        // delay.delay_ms(50_u16);
-
-        // led4.set_low().ok();
-        // delay.delay_ms(50_u16);
-
-        // led5.set_low().ok();
-        // delay.delay_ms(50_u16);
-
-        // led6.set_low().ok();
-        // delay.delay_ms(50_u16);
-
-        // led7.set_low().ok();
-        // delay.delay_ms(50_u16);
-
-        if (sw0.is_low().ok().unwrap()) {
-            led0.set_high().ok();
+                buzz.set_high().ok();
+            }
         } else {
-            led0.set_low().ok();
+            for i in 0..=7 {
+                leds[i].set_low().ok();
+            }
+
+            buzz.set_low().ok();
         }
     }
 }
